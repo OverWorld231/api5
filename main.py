@@ -5,9 +5,11 @@ import os
 from dotenv import load_dotenv
 
 
-def vacansies_headhunter(language="Python", page=0):
+def get_vacansies_headhunter(language="Python", page=0):
     url = "https://api.hh.ru/vacancies"
-    params = {"area": 1, "period": 30, "text": language, "page": page}
+    area = 1
+    period = 30
+    params = {"area": area, "period": period, "text": language, "page": page}
     response = requests.get(url, params=params)
     response.raise_for_status()
     return response.json()
@@ -34,17 +36,17 @@ def get_headhunter_statistic():
     for language in languages:
         salary_vacansies = []
         for page in count(0):
-            vacansies = vacansies_headhunter(language, page=page)
+            vacansies = get_vacansies_headhunter(language, page=page)
             if page >= vacansies['pages'] - 1:
                 break
             for vacansy in vacansies["items"]:
                 salary = vacansy.get("salary")
                 if salary and salary["currency"] == "RUR":
-                    predict_salary = predict_rub_salary(
+                    prediction_salary = predict_rub_salary(
                         vacansy["salary"].get("from"),
                         vacansy["salary"].get("to"))
-                    if predict_salary:
-                        salary_vacansies.append(predict_salary)
+                    if prediction_salary:
+                        salary_vacansies.append(prediction_salary)
         if salary_vacansies:
             average_salary = int(sum(salary_vacansies) / len(salary_vacansies))
         vacansies_by_language[language] = {
@@ -55,11 +57,12 @@ def get_headhunter_statistic():
     return vacansies_by_language
 
 
-def super_job(token, language, page=0):
+def get_super_job(token, language, page=0):
     url = "https://api.superjob.ru/2.0/vacancies/"
+    period = 30
     params = {
         "keyword": language,
-        "period": 30,
+        "period": period,
         "town": "Москва",
         "page": page
     }
@@ -78,14 +81,14 @@ def predict_rub_salary_for_superJob(token):
     for language in languages:
         salary_vacansies = []
         for page in count(0, 1):
-            vacansies = super_job(token, language, page=page)
+            vacansies = get_super_job(token, language, page=page)
             if not vacansies['objects']:
                 break
             for vacansy in vacansies["objects"]:
-                predict_salary = predict_rub_salary(vacansy["payment_from"],
+                prediction_salary = predict_rub_salary(vacansy["payment_from"],
                                                     vacansy["payment_to"])
-                if predict_salary:
-                    salary_vacansies.append(predict_salary)
+                if prediction_salary:
+                    salary_vacansies.append(prediction_salary)
         if salary_vacansies:
             average_salary = int(sum(salary_vacansies) / len(salary_vacansies))
         vacansies_by_language[language] = {
@@ -96,7 +99,7 @@ def predict_rub_salary_for_superJob(token):
     return vacansies_by_language
 
 
-def tables(statistic):
+def get_table(statistic):
     table_data = [[
         'Язык программирования', 'Вакансий найдено', "Вакансий обработанно",
         "Средняя зарплата"
@@ -113,8 +116,8 @@ def tables(statistic):
 def main():
     load_dotenv()
     token = os.environ['SJ_KEY']
-    print(tables(predict_rub_salary_for_superJob(token)))
-    print(tables(get_headhunter_statistic()))
+    print(get_table(predict_rub_salary_for_superJob(token)))
+    print(get_table(get_headhunter_statistic()))
 
 
 if __name__ == "__main__":
