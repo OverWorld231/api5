@@ -34,30 +34,32 @@ def get_headhunter_statistic():
         "С#", "С++", "Ruby", "JavaScript"
     ]
     for language in languages:
-        salary_vacansies = []
+        vacancy_salaries  = []
         for page in count(0):
-            vacansies = get_vacansies_headhunter(language, page=page)
-            if page >= vacansies['pages'] - 1:
-                break
-            for vacansy in vacansies["items"]:
-                salary = vacansy.get("salary")
-                if salary and salary["currency"] == "RUR":
-                    prediction_salary = predict_rub_salary(
-                        vacansy["salary"].get("from"),
-                        vacansy["salary"].get("to"))
-                    if prediction_salary:
-                        salary_vacansies.append(prediction_salary)
-        if salary_vacansies:
-            average_salary = int(sum(salary_vacansies) / len(salary_vacansies))
+                vacansies = get_vacansies_headhunter(language, page=page)
+                if page >= vacansies['pages'] - 1:
+                    break
+                for vacansy in vacansies["items"]:
+                    salary = vacansy.get("salary")
+                    if salary and salary["currency"] == "RUR":
+                        predicted_salary = predict_rub_salary(
+                            vacansy["salary"].get("from"),
+                            vacansy["salary"].get("to"))
+                        if predicted_salary:
+                            vacancy_salaries .append(predicted_salary)
+        if vacancy_salaries:
+            average_salary = int(sum( vacancy_salaries ) / len(vacancy_salaries))
+        else:
+            continue
         vacansies_by_language[language] = {
-            "vacancies_found": vacansies["found"],
-            "vacancies_processed": len(salary_vacansies),
-            "average_salary": average_salary
-        }
+                "vacancies_found": vacansies["found"],
+                "vacancies_processed": len(vacancy_salaries),
+                "average_salary": average_salary
+            }
     return vacansies_by_language
 
 
-def get_super_job(token, language, page=0):
+def get_super_job_vacansies(token, language, page=0):
     url = "https://api.superjob.ru/2.0/vacancies/"
     period = 30
     params = {
@@ -79,21 +81,23 @@ def predict_rub_salary_for_superJob(token):
         "С#", "С++", "Ruby", "JavaScript"
     ]
     for language in languages:
-        salary_vacansies = []
+        vacancy_salaries = []
         for page in count(0, 1):
-            vacansies = get_super_job(token, language, page=page)
+            vacansies = get_super_job_vacansies(token, language, page=page)
             if not vacansies['objects']:
                 break
             for vacansy in vacansies["objects"]:
-                prediction_salary = predict_rub_salary(vacansy["payment_from"],
+                predicted_salary = predict_rub_salary(vacansy["payment_from"],
                                                     vacansy["payment_to"])
-                if prediction_salary:
-                    salary_vacansies.append(prediction_salary)
-        if salary_vacansies:
-            average_salary = int(sum(salary_vacansies) / len(salary_vacansies))
+                if predicted_salary:
+                    vacancy_salaries.append(predicted_salary)
+        if vacancy_salaries:
+            average_salary = int(sum(vacancy_salaries) / len(vacancy_salaries))
+        else:
+            continue
         vacansies_by_language[language] = {
             "vacancies_found": vacansies["total"],
-            "vacancies_processed": len(salary_vacansies),
+            "vacancies_processed": len(vacancy_salaries),
             "average_salary": average_salary
         }
     return vacansies_by_language
