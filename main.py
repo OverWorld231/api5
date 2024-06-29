@@ -34,6 +34,7 @@ def get_headhunter_statistic():
         "С#", "С++", "Ruby", "JavaScript"
     ]
     for language in languages:
+        vacancies_processed = 0
         vacancy_salaries  = []
         for page in count(0):
                 vacansies = get_vacansies_headhunter(language, page=page)
@@ -46,6 +47,7 @@ def get_headhunter_statistic():
                             vacansy["salary"].get("from"),
                             vacansy["salary"].get("to"))
                         if predicted_salary:
+                            vacancies_processed += 1
                             vacancy_salaries .append(predicted_salary)
         if vacancy_salaries:
             average_salary = int(sum( vacancy_salaries ) / len(vacancy_salaries))
@@ -53,7 +55,7 @@ def get_headhunter_statistic():
             continue
         vacansies_by_language[language] = {
                 "vacancies_found": vacansies["found"],
-                "vacancies_processed": len(vacancy_salaries),
+                "vacancies_processed": vacancies_processed,
                 "average_salary": average_salary
             }
     return vacansies_by_language
@@ -81,6 +83,7 @@ def predict_rub_salary_for_superJob(token):
         "С#", "С++", "Ruby", "JavaScript"
     ]
     for language in languages:
+        vacancies_processed = 0
         vacancy_salaries = []
         for page in count(0, 1):
             vacansies = get_super_job_vacansies(token, language, page=page)
@@ -90,6 +93,7 @@ def predict_rub_salary_for_superJob(token):
                 predicted_salary = predict_rub_salary(vacansy["payment_from"],
                                                     vacansy["payment_to"])
                 if predicted_salary:
+                    vacancies_processed += 1
                     vacancy_salaries.append(predicted_salary)
         if vacancy_salaries:
             average_salary = int(sum(vacancy_salaries) / len(vacancy_salaries))
@@ -97,7 +101,7 @@ def predict_rub_salary_for_superJob(token):
             continue
         vacansies_by_language[language] = {
             "vacancies_found": vacansies["total"],
-            "vacancies_processed": len(vacancy_salaries),
+            "vacancies_processed": vacancies_processed,
             "average_salary": average_salary
         }
     return vacansies_by_language
