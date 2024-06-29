@@ -108,10 +108,10 @@ def get_table(statistic):
         'Язык программирования', 'Вакансий найдено', "Вакансий обработанно",
         "Средняя зарплата"
     ]]
-    for language, vacansie in statistic.items():
+    for language, vacansy in statistic.items():
         table_data.append([
-            language, vacansie["vacancies_found"],
-            vacansie["vacancies_processed"], vacansie["average_salary"]
+            language, vacansy["vacancies_found"],
+            vacansy["vacancies_processed"], vacansy["average_salary"]
         ])
     table = AsciiTable(table_data)
     return table.table
