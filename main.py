@@ -53,7 +53,7 @@ def get_headhunter_statistic():
         if vacancy_salaries:
             average_salary = int(sum( vacancy_salaries ) / len(vacancy_salaries))
         else:
-            continue
+            average_salary = None
         vacancies_by_language[language] = {
                 "vacancies_found": vacancies_found,
                 "vacancies_processed": vacancies_processed,
@@ -100,7 +100,7 @@ def predict_rub_salary_for_superJob(token):
         if vacancy_salaries:
             average_salary = int(sum(vacancy_salaries) / len(vacancy_salaries))
         else:
-            continue
+            average_salary = None
         vacancies_by_language[language] = {
             "vacancies_found": total_vacancies,
             "vacancies_processed": vacancies_processed,
